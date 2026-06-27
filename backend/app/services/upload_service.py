@@ -4,18 +4,11 @@ import uuid
 
 from fastapi import UploadFile, HTTPException
 
-# Upload directory
-UPLOAD_DIR = "uploads"
-
-# Allowed file types
-ALLOWED_EXTENSIONS = {
-    ".pdf",
-    ".png",
-    ".jpg",
-    ".jpeg"
-}
-
-# Create uploads folder if it doesn't exist
+from app.core.config import (
+    UPLOAD_DIR,
+    MAX_FILE_SIZE,
+    ALLOWED_EXTENSIONS,
+)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
@@ -31,6 +24,23 @@ def validate_file(file: UploadFile):
             detail=f"Unsupported file type: {extension}"
         )
 
+def validate_file_size(file: UploadFile):
+    # Move pointer to the end of the file
+    file.file.seek(0, 2)
+
+    # Get file size
+    file_size = file.file.tell()
+
+    # Move pointer back to the beginning
+    file.file.seek(0)
+
+    # Check size
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds 10 MB."
+        )
+
 
 def save_uploaded_file(file: UploadFile):
     """
@@ -40,6 +50,9 @@ def save_uploaded_file(file: UploadFile):
     # Step 1: Validate
     validate_file(file)
 
+    #size = len(file.file.read())
+    validate_file_size(file)
+    
     # Step 2: Get file extension
     extension = os.path.splitext(file.filename)[1].lower()
 
