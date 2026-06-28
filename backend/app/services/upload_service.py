@@ -3,19 +3,19 @@ import shutil
 import uuid
 
 from fastapi import UploadFile, HTTPException
+from sqlalchemy.orm import Session
 
 from app.core.config import (
     UPLOAD_DIR,
     MAX_FILE_SIZE,
     ALLOWED_EXTENSIONS,
 )
+from app.models.document import Document
+
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 def validate_file(file: UploadFile):
-    """
-    Validate uploaded file extension.
-    """
     extension = os.path.splitext(file.filename)[1].lower()
 
     if extension not in ALLOWED_EXTENSIONS:
@@ -24,51 +24,57 @@ def validate_file(file: UploadFile):
             detail=f"Unsupported file type: {extension}"
         )
 
+
 def validate_file_size(file: UploadFile):
-    # Move pointer to the end of the file
     file.file.seek(0, 2)
-
-    # Get file size
     file_size = file.file.tell()
-
-    # Move pointer back to the beginning
     file.file.seek(0)
 
-    # Check size
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
             detail="File size exceeds 10 MB."
         )
 
+    return file_size
 
-def save_uploaded_file(file: UploadFile):
-    """
-    Validate and save uploaded file with a UUID filename.
-    """
 
-    # Step 1: Validate
+def save_uploaded_file(file: UploadFile, db: Session):
+
+    # Validate
     validate_file(file)
+    file_size = validate_file_size(file)
 
-    #size = len(file.file.read())
-    validate_file_size(file)
-    
-    # Step 2: Get file extension
+    # Extension
     extension = os.path.splitext(file.filename)[1].lower()
 
-    # Step 3: Generate unique filename
+    # UUID filename
     unique_filename = f"{uuid.uuid4()}{extension}"
 
-    # Step 4: Create full path
+    # Full path
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
 
-    # Step 5: Save file
+    # Save file
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Step 6: Return metadata
+    # Database object
+    document = Document(
+        original_filename=file.filename,
+        stored_filename=unique_filename,
+        file_path=file_path,
+        file_size=file_size,
+        file_type=extension,
+        status="UPLOADED"
+    )
+
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
     return {
-        "original_filename": file.filename,
-        "stored_filename": unique_filename,
-        "file_path": file_path
+        "original_filename": document.original_filename,
+        "stored_filename": document.stored_filename,
+        "file_path": document.file_path,
+        "file_size": document.file_size,
     }

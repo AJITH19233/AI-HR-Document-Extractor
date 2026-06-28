@@ -1,15 +1,21 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends
+from sqlalchemy.orm import Session
+
+from app.database.session import get_db
+from app.schemas.document_schema import UploadResponse
 from app.services.upload_service import save_uploaded_file
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
 
 
-@router.post("/")
-def upload_document(file: UploadFile = File(...)):
-    file_path = save_uploaded_file(file)
+@router.post("/", response_model=UploadResponse)
+def upload_document(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    document = save_uploaded_file(file, db)
 
-    return {
-        "message": "File uploaded successfully",
-        "filename": file.filename,
-        "path": file_path
-    }
+    return UploadResponse(
+        message="File uploaded successfully",
+        document=document
+    )
