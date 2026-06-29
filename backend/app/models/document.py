@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
-
+from sqlalchemy import Text
 from app.database.base import Base
 
 
@@ -12,6 +12,7 @@ class Document(Base):
     file_path = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
     file_type = Column(String, nullable=False)
+    extracted_text = Column(Text, nullable=True)
     status = Column(
         String,
         nullable=False,
@@ -22,3 +23,4 @@ class Document(Base):
         nullable=False,
         server_default=func.now()
     )
+    

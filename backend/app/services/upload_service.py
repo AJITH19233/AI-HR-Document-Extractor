@@ -11,6 +11,7 @@ from app.core.config import (
     ALLOWED_EXTENSIONS,
 )
 from app.models.document import Document
+from app.services.ocr_service import extract_text
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -41,24 +42,24 @@ def validate_file_size(file: UploadFile):
 
 def save_uploaded_file(file: UploadFile, db: Session):
 
-    # Validate
+    # Step 1: Validate file
     validate_file(file)
     file_size = validate_file_size(file)
 
-    # Extension
+    # Step 2: Get extension
     extension = os.path.splitext(file.filename)[1].lower()
 
-    # UUID filename
+    # Step 3: Generate UUID filename
     unique_filename = f"{uuid.uuid4()}{extension}"
 
-    # Full path
+    # Step 4: Create full file path
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
 
-    # Save file
+    # Step 5: Save file to disk
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Database object
+    # Step 6: Create database record
     document = Document(
         original_filename=file.filename,
         stored_filename=unique_filename,
@@ -72,9 +73,33 @@ def save_uploaded_file(file: UploadFile, db: Session):
     db.commit()
     db.refresh(document)
 
+    # Step 7: OCR Processing
+    try:
+        extracted_text = extract_text(file_path)
+
+        document.extracted_text = extracted_text
+        document.status = "EXTRACTED"
+
+        db.commit()
+        db.refresh(document)
+
+    except Exception as e:
+
+        document.status = "OCR_FAILED"
+
+        db.commit()
+        db.refresh(document)
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"OCR failed: {str(e)}"
+        )
+
+    # Step 8: Return response
     return {
         "original_filename": document.original_filename,
         "stored_filename": document.stored_filename,
         "file_path": document.file_path,
         "file_size": document.file_size,
+        "status": document.status
     }
