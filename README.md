@@ -1,41 +1,44 @@
 # 🤖 AI HR Document Extractor
 
-An AI-powered HR Document Extraction System built with **FastAPI**, **PostgreSQL**, and **SQLAlchemy**. This project is designed to automate the extraction of structured information from HR documents such as resumes, Aadhaar cards, PAN cards, passports, and other documents using OCR and AI.
+A production-style AI-powered HR Document Extractor built with **FastAPI**, **PostgreSQL**, and **Tesseract OCR**. The application processes uploaded resume images, extracts text using OCR, identifies important candidate information, and stores the extracted data in PostgreSQL.
 
 ---
 
-## 🚀 Features Completed
+## 🚀 Features
 
-- ✅ Upload HR documents (PDF, PNG, JPG, JPEG)
-- ✅ File type validation
-- ✅ File size validation (Max 10 MB)
-- ✅ Unique UUID filename generation
-- ✅ Store uploaded files securely
-- ✅ Store document metadata in PostgreSQL
-- ✅ SQLAlchemy ORM integration
-- ✅ FastAPI dependency injection
-- ✅ Pydantic response validation
-- ✅ Clean project architecture
+### 📄 Document Upload
+- Upload resume images (PNG, JPG, JPEG)
+- File type validation
+- File size validation (Max: 10 MB)
+- UUID-based file storage
 
----
+### 🔍 OCR Processing
+- Optical Character Recognition (OCR) using Tesseract
+- Extract text from uploaded documents
+- OCR error handling
+- Document status tracking
 
-## 🔄 Current Workflow
+### 📑 Resume Information Extraction
+- Extract Candidate Name
+- Extract Email Address
+- Extract Phone Number
+- Regex-based information extraction
+- Automatic fallback for resumes without a "Name:" field
 
-```
-Upload File
-      │
-      ▼
-Validate File
-      │
-      ▼
-Generate UUID Filename
-      │
-      ▼
-Save File
-      │
-      ▼
-Store Metadata in PostgreSQL
-```
+### 🗄 Database Integration
+Stores:
+
+- Original filename
+- Stored filename
+- File path
+- File size
+- File type
+- Candidate Name
+- Email Address
+- Phone Number
+- Extracted OCR text
+- Processing status
+- Upload timestamp
 
 ---
 
@@ -49,98 +52,142 @@ Store Metadata in PostgreSQL
 - PostgreSQL
 - SQLAlchemy ORM
 
-### Validation
-- Pydantic
+### OCR
+- Tesseract OCR
+- Pillow (PIL)
 
-### Utilities
-- UUID
-- Python Multipart
-- Dotenv
+### Others
+- Pydantic
+- Uvicorn
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
-```
+```text
 backend/
 │
 ├── app/
-│   ├── api/
 │   ├── core/
+│   │   └── config.py
+│   │
 │   ├── database/
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   └── init_db.py
+│   │
 │   ├── models/
+│   │   └── document.py
+│   │
 │   ├── schemas/
+│   │   └── document_schema.py
+│   │
 │   ├── services/
-│   ├── utils/
+│   │   ├── upload_service.py
+│   │   ├── ocr_service.py
+│   │   └── extractor_service.py
+│   │
+│   ├── api/
+│   │   └── upload_routes.py
+│   │
 │   └── main.py
 │
 ├── uploads/
-├── .env
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 📌 Database Schema
+## ⚙️ Processing Workflow
 
-| Column | Type |
-|----------|------|
-| id | Integer |
-| original_filename | String |
-| stored_filename | String |
-| file_path | String |
-| file_size | Integer |
-| file_type | String |
-| status | String |
-| uploaded_at | DateTime |
-
----
-
-## 🧪 API Endpoint
-
-### Upload Document
-
-```
-POST /upload/
-```
-
-Response
-
-```json
-{
-    "message": "File uploaded successfully",
-    "document": {
-        "original_filename": "resume.pdf",
-        "stored_filename": "3ab21c8d.pdf",
-        "file_path": "uploads/3ab21c8d.pdf",
-        "file_size": 152364
-    }
-}
+```text
+Upload Resume
+        │
+        ▼
+Validate File
+        │
+        ▼
+Save File
+        │
+        ▼
+Create Database Record
+(Status = UPLOADED)
+        │
+        ▼
+OCR Processing
+        │
+        ▼
+Extract Text
+        │
+        ▼
+Extract Candidate Information
+(Name, Email, Phone)
+        │
+        ▼
+Update Database
+(Status = EXTRACTED)
 ```
 
 ---
 
-## 🎯 Upcoming Features
+## 📌 Current Extraction
 
-- OCR using Tesseract
-- Resume Information Extraction
-- Aadhaar/PAN Detection
-- AI-powered Field Extraction
-- Confidence Scoring
-- Document Classification
-- Docker
+Currently the system extracts:
+
+- ✅ Name
+- ✅ Email Address
+- ✅ Phone Number
+
+---
+
+## 🔄 Document Status
+
+| Status | Description |
+|---------|-------------|
+| UPLOADED | File uploaded successfully |
+| EXTRACTED | OCR and information extraction completed |
+| OCR_FAILED | OCR processing failed |
+
+---
+
+## 🚀 Upcoming Features
+
+- Resume Skills Extraction
+- Education Extraction
+- Experience Extraction
+- Resume Classification
+- AI-powered Information Extraction using LLMs
+- Confidence Scores
+- PDF OCR Support
+- Docker Deployment
 - AWS Deployment
 - CI/CD Pipeline
-- Monitoring with Prometheus & Grafana
+- Prometheus & Grafana Monitoring
 
 ---
 
-## 📈 Current Status
+## 📸 Sample Workflow
 
-✅ Upload Module Completed
-
-🚧 OCR Module In Progress
+```
+Resume Image
+      │
+      ▼
+OCR
+      │
+      ▼
+Extracted Text
+      │
+      ▼
+Resume Information
+      │
+      ├── Name
+      ├── Email
+      └── Phone
+      │
+      ▼
+PostgreSQL
+```
 
 ---
 
@@ -148,4 +195,4 @@ Response
 
 **Ajith Chandran G**
 
-MCA Graduate | Backend Developer | FastAPI | Python | PostgreSQL | DevOps Enthusiast
+Backend Developer | Python | FastAPI | PostgreSQL | SQLAlchemy | OCR | AI

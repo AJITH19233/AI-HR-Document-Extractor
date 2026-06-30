@@ -12,6 +12,7 @@ from app.core.config import (
 )
 from app.models.document import Document
 from app.services.ocr_service import extract_text
+from app.services.extractor_service import extract_information
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -76,7 +77,10 @@ def save_uploaded_file(file: UploadFile, db: Session):
     # Step 7: OCR Processing
     try:
         extracted_text = extract_text(file_path)
-
+        document_info = extract_information(extracted_text)
+        document.name = document_info["name"]
+        document.email = document_info["email"]
+        document.phone = document_info["phone"]
         document.extracted_text = extracted_text
         document.status = "EXTRACTED"
 

@@ -12,6 +12,9 @@ class Document(Base):
     file_path = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
     file_type = Column(String, nullable=False)
+    name = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
     extracted_text = Column(Text, nullable=True)
     status = Column(
         String,
