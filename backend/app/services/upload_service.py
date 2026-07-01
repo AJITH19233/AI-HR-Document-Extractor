@@ -13,6 +13,7 @@ from app.core.config import (
 from app.models.document import Document
 from app.services.ocr_service import extract_text
 from app.services.extractor_service import extract_information
+from app.models.skill import Skill
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -67,7 +68,7 @@ def save_uploaded_file(file: UploadFile, db: Session):
         file_path=file_path,
         file_size=file_size,
         file_type=extension,
-        status="UPLOADED"
+        status="UPLOADED",
     )
 
     db.add(document)
@@ -82,6 +83,8 @@ def save_uploaded_file(file: UploadFile, db: Session):
         document.email = document_info["email"]
         document.phone = document_info["phone"]
         document.extracted_text = extracted_text
+        print(document_info)
+        print(document_info["skills"])
         document.status = "EXTRACTED"
 
         db.commit()
@@ -93,11 +96,23 @@ def save_uploaded_file(file: UploadFile, db: Session):
 
         db.commit()
         db.refresh(document)
-
         raise HTTPException(
             status_code=500,
             detail=f"OCR failed: {str(e)}"
         )
+
+    for skill_name in document_info["skills"]:
+
+        if not skill_name:
+            continue
+
+        new_skill = Skill(
+            document_id=document.id,
+        skill=skill_name
+        )
+
+        db.add(new_skill)
+    db.commit()
 
     # Step 8: Return response
     return {
@@ -105,5 +120,5 @@ def save_uploaded_file(file: UploadFile, db: Session):
         "stored_filename": document.stored_filename,
         "file_path": document.file_path,
         "file_size": document.file_size,
-        "status": document.status
+        "status": document.status,
     }

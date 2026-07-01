@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import Text
 from app.database.base import Base
-
+from sqlalchemy.orm import relationship
 
 class Document(Base):
     __tablename__ = "documents"
@@ -15,6 +15,7 @@ class Document(Base):
     name = Column(String, nullable=True)
     email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    skills = relationship("Skill",back_populates="document",cascade="all, delete-orphan")
     extracted_text = Column(Text, nullable=True)
     status = Column(
         String,
