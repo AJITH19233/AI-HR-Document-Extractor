@@ -1,8 +1,10 @@
 from app.database.base import Base
 from app.database.session import engine
 
-# Import all models
+# Import ALL models
 from app.models.document import Document
+from app.models.education import Education
+from app.models.skill import Skill
 
 
 def init_db():

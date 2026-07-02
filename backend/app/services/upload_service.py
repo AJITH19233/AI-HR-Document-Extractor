@@ -14,6 +14,7 @@ from app.models.document import Document
 from app.services.ocr_service import extract_text
 from app.services.extractor_service import extract_information
 from app.models.skill import Skill
+from app.models.education import Education
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -79,6 +80,8 @@ def save_uploaded_file(file: UploadFile, db: Session):
     try:
         extracted_text = extract_text(file_path)
         document_info = extract_information(extracted_text)
+        print(document_info)
+        print(document_info["education"])
         document.name = document_info["name"]
         document.email = document_info["email"]
         document.phone = document_info["phone"]
@@ -113,7 +116,18 @@ def save_uploaded_file(file: UploadFile, db: Session):
 
         db.add(new_skill)
     db.commit()
+    for edu in document_info["education"]:
 
+        new_education = Education(
+        document_id=document.id,
+        degree=edu["degree"],
+        institution=edu["institution"],
+        year=edu["year"]
+    )
+
+        db.add(new_education)
+
+    db.commit()
     # Step 8: Return response
     return {
         "original_filename": document.original_filename,

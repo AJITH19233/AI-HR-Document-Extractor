@@ -16,6 +16,7 @@ class Document(Base):
     email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     skills = relationship("Skill",back_populates="document",cascade="all, delete-orphan")
+    education_records = relationship("Education",back_populates="document",cascade="all, delete-orphan")
     extracted_text = Column(Text, nullable=True)
     status = Column(
         String,
