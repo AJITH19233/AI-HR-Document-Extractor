@@ -1,52 +1,51 @@
-# 🤖 AI HR Document Extractor
+# AI HR Document Extractor
 
-A production-style AI-powered HR Document Extractor built with **FastAPI**, **PostgreSQL**, and **Tesseract OCR**. The application processes uploaded resume images, extracts text using OCR, identifies important candidate information, and stores the extracted data in PostgreSQL.
+An AI-powered Resume Parsing application built with FastAPI, PostgreSQL, SQLAlchemy, and Tesseract OCR.
+
+The application extracts structured information from uploaded resumes and stores it in a normalized PostgreSQL database using production-style backend architecture.
 
 ---
 
-## 🚀 Features
+## Features
 
-### 📄 Document Upload
-- Upload resume images (PNG, JPG, JPEG)
-- File type validation
-- File size validation (Max: 10 MB)
+### File Upload
+- Upload resume images (.png, .jpg, .jpeg)
 - UUID-based file storage
+- File size validation
+- File type validation
 
-### 🔍 OCR Processing
-- Optical Character Recognition (OCR) using Tesseract
-- Extract text from uploaded documents
-- OCR error handling
-- Document status tracking
+### OCR Processing
+- Text extraction using Tesseract OCR
+- Supports image-based resumes
+- Stores extracted text in PostgreSQL
 
-### 📑 Resume Information Extraction
-- Extract Candidate Name
-- Extract Email Address
-- Extract Phone Number
-- Regex-based information extraction
-- Automatic fallback for resumes without a "Name:" field
-
-### 🗄 Database Integration
-Stores:
-
-- Original filename
-- Stored filename
-- File path
-- File size
-- File type
+### Resume Information Extraction
 - Candidate Name
 - Email Address
 - Phone Number
-- Extracted OCR text
-- Processing status
-- Upload timestamp
+
+### Skills Extraction
+- Detects the Technical Skills section
+- Extracts multiple skills
+- Stores skills in a separate table
+- One-to-Many relationship with Document
+
+### Education Extraction
+- Detects the Education section
+- Extracts:
+  - Degree
+  - Institution
+  - Year
+- Stores education records in a separate table
+- One-to-Many relationship with Document
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Backend
+- Python
 - FastAPI
-- Python 3.13
 
 ### Database
 - PostgreSQL
@@ -54,145 +53,224 @@ Stores:
 
 ### OCR
 - Tesseract OCR
-- Pillow (PIL)
 
-### Others
-- Pydantic
-- Uvicorn
+### Tools
+- Git
+- GitHub
+- VS Code
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```text
+```
 backend/
 │
 ├── app/
-│   ├── core/
-│   │   └── config.py
-│   │
-│   ├── database/
-│   │   ├── base.py
-│   │   ├── session.py
-│   │   └── init_db.py
-│   │
 │   ├── models/
-│   │   └── document.py
-│   │
-│   ├── schemas/
-│   │   └── document_schema.py
+│   │   ├── document.py
+│   │   ├── skill.py
+│   │   └── education.py
 │   │
 │   ├── services/
 │   │   ├── upload_service.py
+│   │   ├── extractor_service.py
 │   │   ├── ocr_service.py
-│   │   └── extractor_service.py
+│   │   └── classifier_service.py
 │   │
-│   ├── api/
-│   │   └── upload_routes.py
-│   │
+│   ├── schemas/
+│   ├── database/
+│   ├── utils/
 │   └── main.py
 │
 ├── uploads/
-├── requirements.txt
-└── README.md
+├── .env
+├── docker-compose.yml
+└── requirements.txt
 ```
 
 ---
 
-## ⚙️ Processing Workflow
-
-```text
-Upload Resume
-        │
-        ▼
-Validate File
-        │
-        ▼
-Save File
-        │
-        ▼
-Create Database Record
-(Status = UPLOADED)
-        │
-        ▼
-OCR Processing
-        │
-        ▼
-Extract Text
-        │
-        ▼
-Extract Candidate Information
-(Name, Email, Phone)
-        │
-        ▼
-Update Database
-(Status = EXTRACTED)
-```
-
----
-
-## 📌 Current Extraction
-
-Currently the system extracts:
-
-- ✅ Name
-- ✅ Email Address
-- ✅ Phone Number
-
----
-
-## 🔄 Document Status
-
-| Status | Description |
-|---------|-------------|
-| UPLOADED | File uploaded successfully |
-| EXTRACTED | OCR and information extraction completed |
-| OCR_FAILED | OCR processing failed |
-
----
-
-## 🚀 Upcoming Features
-
-- Resume Skills Extraction
-- Education Extraction
-- Experience Extraction
-- Resume Classification
-- AI-powered Information Extraction using LLMs
-- Confidence Scores
-- PDF OCR Support
-- Docker Deployment
-- AWS Deployment
-- CI/CD Pipeline
-- Prometheus & Grafana Monitoring
-
----
-
-## 📸 Sample Workflow
+## Current Workflow
 
 ```
 Resume Image
       │
       ▼
+Upload API
+      │
+      ▼
+OCR (Tesseract)
+      │
+      ▼
+Text Extraction
+      │
+      ▼
+Resume Information Extraction
+      │
+ ┌────┼────────┬──────────┬─────────────┐
+ ▼    ▼        ▼          ▼             ▼
+Name Email Phone Skills Education
+      │
+      ▼
+PostgreSQL Database
+```
+
+---
+
+## Database Schema
+
+### Documents
+
+| Column |
+|----------|
+| id |
+| original_filename |
+| stored_filename |
+| file_path |
+| file_size |
+| file_type |
+| name |
+| email |
+| phone |
+| extracted_text |
+| status |
+| uploaded_at |
+
+### Skills
+
+| Column |
+|----------|
+| id |
+| document_id |
+| skill |
+
+### Education
+
+| Column |
+|----------|
+| id |
+| document_id |
+| degree |
+| institution |
+| year |
+
+---
+
+## Relationships
+
+```
+documents
+    │
+    ├──────── skills
+    │
+    └──────── education
+```
+
+Both Skills and Education have a **One-to-Many** relationship with Documents using SQLAlchemy ORM.
+
+---
+
+## API Endpoint
+
+### Upload Resume
+
+```
+POST /upload/
+```
+
+Uploads a resume image, performs OCR, extracts resume information, and stores the results in PostgreSQL.
+
+---
+
+## Current Output
+
+Currently the application extracts:
+
+- Name
+- Email
+- Phone Number
+- Skills
+- Education
+
+---
+
+## Upcoming Features
+
+- Experience Extraction
+- Project Extraction
+- Certifications Extraction
+- PDF OCR Support
+- Resume Classification
+- AI/LLM-powered Resume Parsing
+- Confidence Score Generation
+- REST API Documentation Improvements
+- Docker Deployment
+- CI/CD Pipeline
+- AWS Deployment
+- Prometheus & Grafana Monitoring
+
+---
+
+## Future Architecture
+
+```
+Resume
+   │
+   ▼
+Upload API
+   │
+   ▼
 OCR
-      │
-      ▼
-Extracted Text
-      │
-      ▼
-Resume Information
-      │
-      ├── Name
-      ├── Email
-      └── Phone
-      │
-      ▼
+   │
+   ▼
+Information Extraction
+   ├── Name
+   ├── Email
+   ├── Phone
+   ├── Skills
+   ├── Education
+   ├── Experience
+   ├── Projects
+   └── Certifications
+   │
+   ▼
 PostgreSQL
 ```
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Ajith Chandran G**
 
-Backend Developer | Python | FastAPI | PostgreSQL | SQLAlchemy | OCR | AI
+GitHub: https://github.com/AJITH19233
+
+LinkedIn: https://www.linkedin.com/in/ajithchandrang
+
+---
+
+## Project Status
+
+**Current Version:** Day 7
+
+### Completed
+
+- File Upload
+- OCR Integration
+- Name Extraction
+- Email Extraction
+- Phone Extraction
+- Skills Extraction
+- Education Extraction
+- PostgreSQL Integration
+- SQLAlchemy ORM
+- One-to-Many Relationships
+
+### In Progress
+
+- Experience Extraction
+
+---
+
+⭐ This project is being built step by step to understand how production-ready AI-powered HR Document Processing systems are designed.
