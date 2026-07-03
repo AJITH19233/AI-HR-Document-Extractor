@@ -15,6 +15,7 @@ from app.services.ocr_service import extract_text
 from app.services.extractor_service import extract_information
 from app.models.skill import Skill
 from app.models.education import Education
+from app.models.experience import Experience
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -80,14 +81,13 @@ def save_uploaded_file(file: UploadFile, db: Session):
     try:
         extracted_text = extract_text(file_path)
         document_info = extract_information(extracted_text)
-        print(document_info)
-        print(document_info["education"])
         document.name = document_info["name"]
         document.email = document_info["email"]
         document.phone = document_info["phone"]
         document.extracted_text = extracted_text
         print(document_info)
         print(document_info["skills"])
+        print(document_info["experience"])
         document.status = "EXTRACTED"
 
         db.commit()
@@ -128,6 +128,22 @@ def save_uploaded_file(file: UploadFile, db: Session):
         db.add(new_education)
 
     db.commit()
+
+
+    #save the experience extracted to the db
+    for exp in document_info["experience"]:
+
+        new_experience = Experience(
+        document_id=document.id,
+        designation=exp["designation"],
+        company=exp["company"],
+        duration=exp["duration"]
+    )
+
+        db.add(new_experience)
+
+    db.commit()
+
     # Step 8: Return response
     return {
         "original_filename": document.original_filename,

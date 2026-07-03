@@ -84,6 +84,7 @@ def extract_information(text: str):
     # Education Extraction
     # ----------------------------
     education = extract_education(text)
+    experience = extract_experience(text)
 
     return {
         "name": name,
@@ -91,41 +92,26 @@ def extract_information(text: str):
         "phone": phone,
         "skills": skills,
         "education": education,
+        "experience": experience,
     }
 
 
 def extract_education(text: str):
-
     education = []
     inside_education = False
-
     degree = None
     institution = None
     year = None
-
     lines = text.splitlines()
-
     for line in lines:
-
         line = line.strip()
-
         if not line:
             continue
-
-        # Debug
-        print("LINE:", repr(line))
-
-        # ----------------------------
-        # Start Education Section
-        # ----------------------------
+# Start Education Section
         if "education" in line.lower():
             inside_education = True
-            print(">>> Education Section Found")
             continue
-
-        # ----------------------------
-        # Stop Education Section
-        # ----------------------------
+ # Stop Education Section
         if inside_education and (
             "other information" in line.lower()
             or "projects" in line.lower()
@@ -135,13 +121,9 @@ def extract_education(text: str):
         ):
             print(">>> Education Section End")
             break
-
         if not inside_education:
             continue
-
-        # ----------------------------
         # Degree Detection
-        # ----------------------------
         if any(keyword in line.lower() for keyword in [
             "bachelor",
             "master",
@@ -158,38 +140,90 @@ def extract_education(text: str):
             degree = line
             print("Degree:", degree)
             continue
-
-        # ----------------------------
         # Year Detection
-        # ----------------------------
         year_match = re.search(r"(19|20)\d{2}.*?(19|20)\d{2}", line)
-
         if year_match:
-
             year = year_match.group()
-
-            # Everything before the year is institution
+            # before the year is institution
             if institution is None:
                 institution = line.replace(year, "").strip(" ,-–")
-
             education.append({
                 "degree": degree,
                 "institution": institution,
                 "year": year
             })
-
             degree = None
             institution = None
             year = None
-
             continue
-
-        # ----------------------------
-        # Institution
-        # ----------------------------
+        # Institution Detection
         if degree and institution is None:
-
             institution = line
             print("Institution:", institution)
-
     return education
+
+
+def extract_experience(text: str):
+    experience = []
+    inside_experience = False
+    designation = None
+    company = None
+    duration = None
+    lines = text.splitlines()
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        # Start Experience Section
+        if "experience" in line.lower():
+            inside_experience = True
+            continue
+        # End Experience Section
+        if inside_experience and (
+            "education" in line.lower()
+            or "projects" in line.lower()
+            or "technical skills" in line.lower()
+            or "certifications" in line.lower()
+            or "other information" in line.lower()
+        ):
+            break
+        if not inside_experience:
+            continue
+        # Designation Detection
+        if any(keyword in line.lower() for keyword in [
+            "developer",
+            "engineer",
+            "intern",
+            "manager",
+            "analyst",
+            "consultant",
+            "architect",
+            "lead",
+            "tester"
+        ]):
+            designation = line
+            continue
+        # Company + Duration Detection
+        month_match = re.search(
+            r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}",
+            line,
+            re.IGNORECASE
+        )
+        if month_match:
+            index = month_match.start()
+            company = line[:index].strip(" ,-–")
+            duration = line[index:].strip()
+            experience.append({
+                "designation": designation,
+                "company": company,
+                "duration": duration
+            })
+            designation = None
+            company = None
+            duration = None
+            continue
+        # Company Detection (when OCR keeps it on a separate line)
+        if designation and company is None:
+            company = line
+
+    return experience
