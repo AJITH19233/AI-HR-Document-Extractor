@@ -17,6 +17,7 @@ from app.models.skill import Skill
 from app.models.education import Education
 from app.models.experience import Experience
 from app.models.project import Project
+from app.models.certification import Certification
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -157,6 +158,20 @@ def save_uploaded_file(file: UploadFile, db: Session):
         )
 
         db.add(new_project)
+
+    db.commit()
+
+    #add certifications to the db
+    for certification in document_info["certifications"]:
+
+        new_certification = Certification(
+        document_id=document.id,
+        certification_name=certification["certification_name"],
+        issuer=certification["issuer"],
+        year=certification["year"]
+    )
+
+        db.add(new_certification)
 
     db.commit()
     # Step 8: Return response

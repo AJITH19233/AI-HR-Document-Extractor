@@ -83,6 +83,7 @@ def extract_information(text: str):
     education = extract_education(text)
     experience = extract_experience(text)
     projects = extract_projects(text)
+    certifications = extract_certifications(text)
 
     return {
         "name": name,
@@ -91,7 +92,8 @@ def extract_information(text: str):
         "skills": skills,
         "education": education,
         "experience": experience,
-        "projects": projects
+        "projects": projects,
+        "certifications": certifications
     }
 
 
@@ -229,35 +231,22 @@ def extract_experience(text: str):
 
 
 def extract_projects(text: str):
-
     projects = []
     inside_projects = False
-
     project_name = None
     description = []
-
     lines = text.splitlines()
-
     for line in lines:
-
         line = line.strip()
-
         if not line:
             continue
-
-        # ----------------------------
         # Start Projects Section
-        # ----------------------------
         if line.lower() == "projects":
             inside_projects = True
             continue
-
         if not inside_projects:
             continue
-
-        # ----------------------------
         # End Projects Section
-        # ----------------------------
         if line.lower() in [
             "experience",
             "education",
@@ -274,10 +263,7 @@ def extract_projects(text: str):
                 })
 
             break
-
-        # ----------------------------
         # Project Name
-        # ----------------------------
         if project_name is None:
 
             # Remove numbering like "1."
@@ -285,17 +271,10 @@ def extract_projects(text: str):
 
             project_name = line
             description = []
-
             continue
-
-        # ----------------------------
         # Description
-        # ----------------------------
         description.append(line)
-
-    # ----------------------------
     # Save last project
-    # ----------------------------
     if inside_projects and project_name:
 
         # Avoid duplicate append
@@ -305,5 +284,66 @@ def extract_projects(text: str):
                 "project_name": project_name,
                 "description": " ".join(description).strip()
             })
-
     return projects
+
+def extract_certifications(text: str):
+
+    certifications = []
+    inside_certifications = False
+
+    certification_name = None
+    issuer = None
+    year = None
+
+    for line in text.splitlines():
+
+        line = line.strip()
+
+        if line.lower() == "certifications":
+            inside_certifications = True
+            continue
+
+        if inside_certifications and (
+            line.lower() == "experience"
+            or line.lower() == "education"
+            or line.lower() == "projects"
+            or line.lower() == "technical skills"
+            or line.lower() == "skills"
+            or line.lower() == "other information"
+        ):
+            break
+
+        if not inside_certifications:
+            continue
+
+        if not line:
+            continue
+
+        # Certificate Name
+        if certification_name is None:
+            certification_name = line
+            continue
+
+        # Issuer | Year
+        if "|" in line:
+
+            parts = line.split("|")
+
+            issuer = parts[0].strip()
+
+            if len(parts) > 1:
+                year = parts[1].strip()
+            else:
+                year = ""
+
+            certifications.append({
+                "certification_name": certification_name,
+                "issuer": issuer,
+                "year": year
+            })
+
+            certification_name = None
+            issuer = None
+            year = None
+
+    return certifications
