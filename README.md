@@ -17,7 +17,9 @@ An AI-powered Resume Parsing application built using **FastAPI**, **PostgreSQL**
 - Image-based resume processing
 - Stores extracted text in PostgreSQL
 
-## Resume Information Extraction
+---
+
+# Resume Information Extraction
 
 ### Personal Information
 - Name
@@ -26,20 +28,31 @@ An AI-powered Resume Parsing application built using **FastAPI**, **PostgreSQL**
 
 ### Skills Extraction
 - Detects Technical Skills section
-- Extracts multiple skills
-- Stores skills in a separate table
+- Extracts multiple technical skills
+- Stores skills in a dedicated table
 
 ### Education Extraction
 - Degree
 - Institution
 - Academic Year
-- Stores multiple education records
+- Supports multiple education records
 
 ### Experience Extraction
 - Designation
 - Company
 - Duration
-- Stores multiple experience records
+- Supports multiple experience records
+
+### Project Extraction
+- Project Name
+- Project Description
+- Supports multiple projects
+
+### Certification Extraction
+- Certification Name
+- Issuer
+- Year
+- Supports multiple certifications
 
 ---
 
@@ -70,29 +83,33 @@ HR-DOCUMENT-EXTRACTOR
 │
 ├── backend
 │   ├── app
+│   │   ├── api
+│   │   ├── core
+│   │   ├── database
 │   │   ├── models
 │   │   │   ├── document.py
 │   │   │   ├── skill.py
 │   │   │   ├── education.py
-│   │   │   └── experience.py
+│   │   │   ├── experience.py
+│   │   │   ├── project.py
+│   │   │   └── certification.py
 │   │   │
+│   │   ├── schemas
 │   │   ├── services
 │   │   │   ├── upload_service.py
 │   │   │   ├── extractor_service.py
 │   │   │   ├── ocr_service.py
 │   │   │   └── classifier_service.py
 │   │   │
-│   │   ├── schemas
-│   │   ├── database
 │   │   ├── utils
 │   │   └── main.py
 │   │
-│   ├── uploads
-│   └── requirements.txt
+│   └── uploads
 │
 ├── docker-compose.yml
 ├── Jenkinsfile
-└── terraform
+├── terraform
+└── README.md
 ```
 
 ---
@@ -100,7 +117,7 @@ HR-DOCUMENT-EXTRACTOR
 # Application Workflow
 
 ```
-Resume Image
+Resume Upload
       │
       ▼
 FastAPI Upload API
@@ -114,9 +131,14 @@ Text Extraction
       ▼
 Resume Information Extraction
       │
- ┌────┼────────┬────────────┬─────────────┬─────────────┐
- ▼    ▼        ▼            ▼             ▼             ▼
-Name Email Phone Skills Education Experience
+ ├──────── Name
+ ├──────── Email
+ ├──────── Phone
+ ├──────── Skills
+ ├──────── Education
+ ├──────── Experience
+ ├──────── Projects
+ └──────── Certifications
       │
       ▼
 PostgreSQL Database
@@ -128,54 +150,65 @@ PostgreSQL Database
 
 ## Documents
 
-| Column |
-|----------|
-| id |
-| original_filename |
-| stored_filename |
-| file_path |
-| file_size |
-| file_type |
-| name |
-| email |
-| phone |
-| extracted_text |
-| status |
-| uploaded_at |
+- id
+- original_filename
+- stored_filename
+- file_path
+- file_size
+- file_type
+- name
+- email
+- phone
+- extracted_text
+- status
+- uploaded_at
 
 ---
 
 ## Skills
 
-| Column |
-|----------|
-| id |
-| document_id |
-| skill |
+- id
+- document_id
+- skill
 
 ---
 
 ## Education
 
-| Column |
-|----------|
-| id |
-| document_id |
-| degree |
-| institution |
-| year |
+- id
+- document_id
+- degree
+- institution
+- year
 
 ---
 
 ## Experience
 
-| Column |
-|----------|
-| id |
-| document_id |
-| designation |
-| company |
-| duration |
+- id
+- document_id
+- designation
+- company
+- duration
+
+---
+
+## Projects
+
+- id
+- document_id
+- project_name
+- description
+
+---
+
+## Certifications
+
+- id
+- document_id
+- certification_name
+- issuer
+- year
 
 ---
 
@@ -183,15 +216,15 @@ PostgreSQL Database
 
 ```
 documents
-    │
-    ├──────── skills
-    │
-    ├──────── education
-    │
-    └──────── experience
+│
+├──────── skills
+├──────── education
+├──────── experience
+├──────── projects
+└──────── certifications
 ```
 
-All tables are connected using **One-to-Many Relationships** with SQLAlchemy ORM.
+All entities are connected using **One-to-Many Relationships** through SQLAlchemy ORM.
 
 ---
 
@@ -203,45 +236,47 @@ All tables are connected using **One-to-Many Relationships** with SQLAlchemy ORM
 POST /upload/
 ```
 
-Uploads a resume image, performs OCR, extracts structured information, and stores the data in PostgreSQL.
+Uploads a resume, performs OCR, extracts structured information, and stores the results in PostgreSQL.
 
 ---
 
-# Current Capabilities
+# Current Features
 
-✔ Resume Upload
+✅ Resume Upload
 
-✔ OCR Text Extraction
+✅ OCR Integration
 
-✔ Name Extraction
+✅ Name Extraction
 
-✔ Email Extraction
+✅ Email Extraction
 
-✔ Phone Number Extraction
+✅ Phone Extraction
 
-✔ Skills Extraction
+✅ Skills Extraction
 
-✔ Education Extraction
+✅ Education Extraction
 
-✔ Experience Extraction
+✅ Experience Extraction
 
-✔ PostgreSQL Integration
+✅ Project Extraction
 
-✔ SQLAlchemy ORM Relationships
+✅ Certification Extraction
+
+✅ PostgreSQL Integration
+
+✅ SQLAlchemy ORM Relationships
 
 ---
 
 # Upcoming Features
 
-- Project Extraction
-- Certification Extraction
 - Languages Extraction
 - Resume Classification
 - AI-powered Resume Parsing (LLM)
-- PDF Resume OCR
+- PDF Resume Processing
 - Confidence Score Generation
 - Docker Deployment
-- CI/CD Pipeline with Jenkins
+- CI/CD Pipeline (Jenkins)
 - AWS Deployment
 - Terraform Infrastructure
 - Prometheus & Grafana Monitoring
@@ -296,7 +331,7 @@ cd AI-HR-Document-Extractor
 pip install -r requirements.txt
 ```
 
-## Start FastAPI
+## Run FastAPI
 
 ```bash
 uvicorn app.main:app --reload
@@ -308,7 +343,7 @@ uvicorn app.main:app --reload
 
 **Ajith Chandran G**
 
-GitHub: https://github.com/AJITH19233
+GitHub: https://github.com/AJITH19233/AI-HR-Document-Extractor
 
 LinkedIn: https://www.linkedin.com/in/ajithchandrang
 
@@ -318,7 +353,7 @@ LinkedIn: https://www.linkedin.com/in/ajithchandrang
 
 ## Version
 
-**Day 8**
+**Day 10**
 
 ### Completed
 
@@ -330,13 +365,15 @@ LinkedIn: https://www.linkedin.com/in/ajithchandrang
 - Skills Extraction
 - Education Extraction
 - Experience Extraction
+- Project Extraction
+- Certification Extraction
 - PostgreSQL Integration
 - SQLAlchemy ORM
 - One-to-Many Relationships
 
 ### Next Milestone
 
-- Project Extraction
+- Languages Extraction
 
 ---
 
