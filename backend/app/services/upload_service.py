@@ -16,6 +16,7 @@ from app.services.extractor_service import extract_information
 from app.models.skill import Skill
 from app.models.education import Education
 from app.models.experience import Experience
+from app.models.project import Project
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -86,8 +87,10 @@ def save_uploaded_file(file: UploadFile, db: Session):
         document.phone = document_info["phone"]
         document.extracted_text = extracted_text
         print(document_info)
+        print(extracted_text)
         print(document_info["skills"])
         print(document_info["experience"])
+        print(document_info["projects"])
         document.status = "EXTRACTED"
 
         db.commit()
@@ -143,7 +146,19 @@ def save_uploaded_file(file: UploadFile, db: Session):
         db.add(new_experience)
 
     db.commit()
+    
+    #projects extraction and saving to the db
+    for project in document_info["projects"]:
 
+        new_project = Project(
+        document_id=document.id,
+        project_name=project["project_name"],
+        description=project["description"]
+        )
+
+        db.add(new_project)
+
+    db.commit()
     # Step 8: Return response
     return {
         "original_filename": document.original_filename,

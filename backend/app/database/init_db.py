@@ -6,6 +6,7 @@ from app.models.document import Document
 from app.models.education import Education
 from app.models.skill import Skill
 from app.models.experience import Experience
+from app.models.project import Project
 
 
 def init_db():

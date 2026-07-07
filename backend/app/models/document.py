@@ -18,6 +18,8 @@ class Document(Base):
     skills = relationship("Skill",back_populates="document",cascade="all, delete-orphan")
     education_records = relationship("Education",back_populates="document",cascade="all, delete-orphan")
     experiences = relationship("Experience",back_populates="document",cascade="all, delete-orphan")
+    projects = relationship("Project",back_populates="document",cascade="all, delete-orphan")
+    certifications = relationship("Certification",back_populates="document",cascade="all, delete-orphan")
     extracted_text = Column(Text, nullable=True)
     status = Column(
         String,

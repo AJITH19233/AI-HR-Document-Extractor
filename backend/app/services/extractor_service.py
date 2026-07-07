@@ -51,10 +51,7 @@ def extract_information(text: str):
             if line.isupper():
                 name = line.title()
                 break
-
-    # ----------------------------
     # Skills Extraction
-    # ----------------------------
     skills = []
     inside_skills = False
 
@@ -85,6 +82,7 @@ def extract_information(text: str):
     # ----------------------------
     education = extract_education(text)
     experience = extract_experience(text)
+    projects = extract_projects(text)
 
     return {
         "name": name,
@@ -93,6 +91,7 @@ def extract_information(text: str):
         "skills": skills,
         "education": education,
         "experience": experience,
+        "projects": projects
     }
 
 
@@ -227,3 +226,84 @@ def extract_experience(text: str):
             company = line
 
     return experience
+
+
+def extract_projects(text: str):
+
+    projects = []
+    inside_projects = False
+
+    project_name = None
+    description = []
+
+    lines = text.splitlines()
+
+    for line in lines:
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        # ----------------------------
+        # Start Projects Section
+        # ----------------------------
+        if line.lower() == "projects":
+            inside_projects = True
+            continue
+
+        if not inside_projects:
+            continue
+
+        # ----------------------------
+        # End Projects Section
+        # ----------------------------
+        if line.lower() in [
+            "experience",
+            "education",
+            "technical skills",
+            "skills",
+            "certifications",
+            "other information"
+        ]:
+
+            if project_name:
+                projects.append({
+                    "project_name": project_name,
+                    "description": " ".join(description).strip()
+                })
+
+            break
+
+        # ----------------------------
+        # Project Name
+        # ----------------------------
+        if project_name is None:
+
+            # Remove numbering like "1."
+            line = re.sub(r"^\d+\.\s*", "", line)
+
+            project_name = line
+            description = []
+
+            continue
+
+        # ----------------------------
+        # Description
+        # ----------------------------
+        description.append(line)
+
+    # ----------------------------
+    # Save last project
+    # ----------------------------
+    if inside_projects and project_name:
+
+        # Avoid duplicate append
+        if not projects or projects[-1]["project_name"] != project_name:
+
+            projects.append({
+                "project_name": project_name,
+                "description": " ".join(description).strip()
+            })
+
+    return projects
