@@ -8,6 +8,7 @@ from app.models.skill import Skill
 from app.models.experience import Experience
 from app.models.project import Project
 from app.models.certification import Certification
+from app.models.language import Language
 
 
 def init_db():

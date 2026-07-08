@@ -84,6 +84,7 @@ def extract_information(text: str):
     experience = extract_experience(text)
     projects = extract_projects(text)
     certifications = extract_certifications(text)
+    languages = extract_languages(text)
 
     return {
         "name": name,
@@ -93,7 +94,8 @@ def extract_information(text: str):
         "education": education,
         "experience": experience,
         "projects": projects,
-        "certifications": certifications
+        "certifications": certifications,
+        "languages": languages
     }
 
 
@@ -347,3 +349,73 @@ def extract_certifications(text: str):
             year = None
 
     return certifications
+
+def extract_languages(text: str):
+
+    languages = []
+    inside_languages = False
+
+    lines = text.splitlines()
+
+    for line in lines:
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        # ----------------------------
+        # Format 1
+        # LANGUAGES
+        # ----------------------------
+        if line.lower() == "languages":
+            inside_languages = True
+            continue
+
+        # ----------------------------
+        # Format 2
+        # e Languages: English, Malayalam
+        # ----------------------------
+        if "languages:" in line.lower() and "programming" not in line.lower():
+
+            parts = line.split(":", 1)[1]
+
+            lang_list = parts.split(",")
+
+            for lang in lang_list:
+
+                lang = lang.strip()
+
+                if lang:
+                    languages.append({
+                        "language": lang
+                    })
+
+            continue
+
+        # ----------------------------
+        # End Section
+        # ----------------------------
+        if inside_languages and (
+            line.lower() == "projects"
+            or line.lower() == "experience"
+            or line.lower() == "education"
+            or line.lower() == "technical skills"
+            or line.lower() == "certifications"
+            or line.lower() == "other information"
+        ):
+            break
+
+        # ----------------------------
+        # Individual Languages
+        # ----------------------------
+        if inside_languages:
+
+            line = line.lstrip("•").lstrip("e").strip()
+
+            if line:
+                languages.append({
+                    "language": line
+                })
+
+    return languages

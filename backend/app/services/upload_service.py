@@ -18,6 +18,8 @@ from app.models.education import Education
 from app.models.experience import Experience
 from app.models.project import Project
 from app.models.certification import Certification
+from app.models.language import Language
+from app.services.classifier_service import classify_document
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -82,10 +84,14 @@ def save_uploaded_file(file: UploadFile, db: Session):
     # Step 7: OCR Processing
     try:
         extracted_text = extract_text(file_path)
+        document_type = classify_document(extracted_text)
+
+        print(document_type)
         document_info = extract_information(extracted_text)
         document.name = document_info["name"]
         document.email = document_info["email"]
         document.phone = document_info["phone"]
+        print(document_info["languages"])
         document.extracted_text = extracted_text
         print(document_info)
         print(extracted_text)
@@ -172,6 +178,17 @@ def save_uploaded_file(file: UploadFile, db: Session):
     )
 
         db.add(new_certification)
+
+    db.commit()
+
+    #add languages to the db
+    for language in document_info["languages"]:
+        new_language = Language(
+        document_id=document.id,
+        language=language["language"]
+    )
+
+        db.add(new_language)
 
     db.commit()
     # Step 8: Return response

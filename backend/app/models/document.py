@@ -12,6 +12,7 @@ class Document(Base):
     file_path = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
     file_type = Column(String, nullable=False)
+    document_type = Column(String, default="UNKNOWN")
     name = Column(String, nullable=True)
     email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -20,6 +21,7 @@ class Document(Base):
     experiences = relationship("Experience",back_populates="document",cascade="all, delete-orphan")
     projects = relationship("Project",back_populates="document",cascade="all, delete-orphan")
     certifications = relationship("Certification",back_populates="document",cascade="all, delete-orphan")
+    languages = relationship("Language",back_populates="document",cascade="all, delete-orphan")
     extracted_text = Column(Text, nullable=True)
     status = Column(
         String,
