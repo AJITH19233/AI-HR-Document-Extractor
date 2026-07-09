@@ -1,6 +1,6 @@
 # 🤖 AI HR Document Extractor
 
-An AI-powered HR Document Processing System built with **FastAPI**, **PostgreSQL**, **SQLAlchemy**, **Tesseract OCR**, and **Google Gemini AI**.
+An AI-powered HR Document Processing System built with **FastAPI**, **PostgreSQL**, **SQLAlchemy**, **Tesseract OCR**, and **Google Gemini AI**..
 
 The application extracts structured information from resumes, classifies uploaded documents, calculates resume scores, generates AI-powered candidate summaries, and analyzes resumes against Job Descriptions using Generative AI.
 
