@@ -319,18 +319,6 @@ Compares a stored resume against a Job Description using Google Gemini AI.
 
 ---
 
-# 📷 Screenshots
-
-Add screenshots here:
-
-- Swagger API
-- Resume Upload
-- Resume Score
-- AI Summary
-- Job Analysis
-- PostgreSQL Tables
-
----
 
 # 👨‍💻 Author
 
