@@ -20,6 +20,8 @@ from app.models.project import Project
 from app.models.certification import Certification
 from app.models.language import Language
 from app.services.classifier_service import classify_document
+from app.services.scoring_service import calculate_resume_score
+from app.services.ai_summary_service import generate_ai_summary
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -85,9 +87,12 @@ def save_uploaded_file(file: UploadFile, db: Session):
     try:
         extracted_text = extract_text(file_path)
         document_type = classify_document(extracted_text)
-
-        print(document_type)
         document_info = extract_information(extracted_text)
+        resume_score = calculate_resume_score(document_info)
+        ai_summary = generate_ai_summary(document_info)
+
+        print(f"Resume Score: {resume_score}")
+        print(document_type)
         document.name = document_info["name"]
         document.email = document_info["email"]
         document.phone = document_info["phone"]
@@ -99,6 +104,9 @@ def save_uploaded_file(file: UploadFile, db: Session):
         print(document_info["experience"])
         print(document_info["projects"])
         document.status = "EXTRACTED"
+        document.document_type = document_type
+        document.resume_score = resume_score
+        document.ai_summary = ai_summary
 
         db.commit()
         db.refresh(document)
@@ -198,4 +206,5 @@ def save_uploaded_file(file: UploadFile, db: Session):
         "file_path": document.file_path,
         "file_size": document.file_size,
         "status": document.status,
+        
     }
