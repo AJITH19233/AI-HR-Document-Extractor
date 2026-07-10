@@ -11,7 +11,6 @@ from app.core.config import (
     ALLOWED_EXTENSIONS,
 )
 from app.models.document import Document
-from app.services.ocr_service import extract_text
 from app.services.extractor_service import extract_information
 from app.models.skill import Skill
 from app.models.education import Education
@@ -22,6 +21,8 @@ from app.models.language import Language
 from app.services.classifier_service import classify_document
 from app.services.scoring_service import calculate_resume_score
 from app.services.ai_summary_service import generate_ai_summary
+from app.services.document_reader_service import extract_text
+
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -134,16 +135,19 @@ def save_uploaded_file(file: UploadFile, db: Session):
 
         db.add(new_skill)
     db.commit()
-    for edu in document_info["education"]:
+    for education in document_info["education"]:
 
-        new_education = Education(
+        if not education.get("degree"):
+            continue
+
+        education_record = Education(
         document_id=document.id,
-        degree=edu["degree"],
-        institution=edu["institution"],
-        year=edu["year"]
+        degree=education["degree"],
+        institution=education["institution"],
+        year=education["year"]
     )
 
-        db.add(new_education)
+        db.add(education_record)
 
     db.commit()
 
