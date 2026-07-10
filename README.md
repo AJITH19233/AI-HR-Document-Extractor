@@ -1,58 +1,48 @@
 # 🤖 AI HR Document Extractor
 
-An AI-powered HR Document Processing System built with **FastAPI**, **PostgreSQL**, **SQLAlchemy**, **Tesseract OCR**, and **Google Gemini AI**..
+An AI-powered HR Document Processing Platform built with **FastAPI**, **PostgreSQL**, **SQLAlchemy**, **Tesseract OCR**, and **Google Gemini AI**.
 
-The application extracts structured information from resumes, classifies uploaded documents, calculates resume scores, generates AI-powered candidate summaries, and analyzes resumes against Job Descriptions using Generative AI.
+The platform automates resume processing by extracting structured information, generating AI-powered summaries, scoring resumes, and matching candidates against job descriptions.
 
 ---
 
 ## 🚀 Features
 
-### 📄 Resume Processing
+### 📄 Universal Resume Upload
 
-- Upload Resume Images
-- OCR-based Text Extraction using Tesseract
-- Automatic Document Classification
+Supports multiple resume formats:
+
+- ✅ PNG
+- ✅ JPG
+- ✅ JPEG
+- ✅ PDF
+- ✅ DOCX
+
+---
+
+## 📑 Resume Processing Pipeline
+
+- File Validation
+- OCR Text Extraction (Images)
+- PDF Text Extraction
+- DOCX Text Extraction
 - Resume Information Extraction
+- Resume Classification
 - Resume Score Generation
-- AI-powered Resume Summary
-- Store Extracted Information in PostgreSQL
+- AI Resume Summary
+- Store Data in PostgreSQL
 
 ---
 
-### 📊 Resume Information Extraction
+## 🤖 AI Features
 
-The system extracts:
+### AI Resume Summary
 
-- Name
-- Email
-- Phone Number
-- Skills
-- Education
-- Experience
-- Projects
-- Certifications
-- Languages
+Generates recruiter-friendly professional summaries using Google Gemini.
 
----
+### Resume Scoring
 
-### 🤖 AI Features
-
-#### ✅ Document Classification
-
-Automatically classifies uploaded documents into:
-
-- Resume
-- Aadhaar
-- PAN
-- Passport
-- Unknown Document
-
----
-
-#### ✅ Resume Score
-
-Calculates a resume score based on:
+Evaluates resumes based on:
 
 - Personal Information
 - Skills
@@ -62,23 +52,9 @@ Calculates a resume score based on:
 - Certifications
 - Languages
 
----
+### Job Description Matching
 
-#### ✅ AI Resume Summary
-
-Uses **Google Gemini 2.5 Flash** to generate a recruiter-friendly professional summary.
-
-Example:
-
-> Ajith Chandran G is a Python Backend Developer with knowledge of FastAPI, PostgreSQL, SQLAlchemy, Docker, and AWS. He completed his MCA and has internship experience in backend development and OCR-based document processing.
-
----
-
-#### ✅ AI Job Description Matching
-
-Compare a candidate's resume against any Job Description.
-
-Returns:
+Compares resumes against job descriptions and generates:
 
 - Match Score
 - Matching Skills
@@ -86,230 +62,115 @@ Returns:
 - Candidate Strengths
 - Improvement Recommendations
 
-Example:
+---
+
+## 📊 Extracted Resume Information
+
+- Name
+- Email
+- Phone
+- Skills
+- Education
+- Experience
+- Projects
+- Certifications
+- Languages
+
+---
+
+## 🏗️ Architecture
 
 ```
-Overall Match : 86%
-
-Matching Skills
-✔ Python
-✔ FastAPI
-✔ PostgreSQL
-✔ Docker
-✔ Git
-✔ AWS
-
-Missing Skills
-✘ Terraform
+Resume Upload
+      │
+      ▼
+File Validation
+      │
+      ▼
+Universal Document Reader
+      │
+ ┌────┼────┬─────┐
+ ▼    ▼    ▼
+OCR  PDF DOCX
+      │
+      ▼
+Information Extraction
+      │
+      ▼
+Document Classification
+      │
+      ▼
+Resume Score
+      │
+      ▼
+AI Resume Summary
+      │
+      ▼
+PostgreSQL
+      │
+      ▼
+Job Description Matching
 ```
 
 ---
 
-## 🏗 Tech Stack
+## 🛠 Tech Stack
 
 ### Backend
-
-- FastAPI
 - Python
+- FastAPI
 
 ### Database
-
 - PostgreSQL
-- SQLAlchemy ORM
+- SQLAlchemy
 
 ### AI
-
 - Google Gemini 2.5 Flash
-- Prompt Engineering
 
 ### OCR
-
 - Tesseract OCR
 
-### Image Processing
-
+### Document Processing
+- PyMuPDF
+- python-docx
 - Pillow
 
 ### Validation
-
 - Pydantic
 
 ---
 
-# 📂 Project Structure
+## 📌 Current Status
 
-```
-backend/
-│
-├── app/
-│   ├── api/
-│   │   ├── upload_routes.py
-│   │   └── job_analysis_routes.py
-│   │
-│   ├── database/
-│   │
-│   ├── models/
-│   │   ├── document.py
-│   │   ├── skill.py
-│   │   ├── education.py
-│   │   ├── experience.py
-│   │   ├── project.py
-│   │   ├── certification.py
-│   │   ├── language.py
-│   │   └── job_analysis.py
-│   │
-│   ├── schemas/
-│   │
-│   ├── services/
-│   │   ├── upload_service.py
-│   │   ├── extractor_service.py
-│   │   ├── classifier_service.py
-│   │   ├── scoring_service.py
-│   │   ├── ai_summary_service.py
-│   │   ├── jd_matching_service.py
-│   │   └── job_analysis_service.py
-│   │
-│   └── main.py
-│
-└── requirements.txt
-```
-
----
-
-# 🔄 System Workflow
-
-```
-Resume Upload
-        │
-        ▼
-File Validation
-        │
-        ▼
-OCR (Tesseract)
-        │
-        ▼
-Document Classification
-        │
-        ▼
-Resume Information Extraction
-        │
-        ▼
-Resume Score Generation
-        │
-        ▼
-AI Resume Summary (Gemini)
-        │
-        ▼
-Store in PostgreSQL
-```
-
----
-
-## 📈 Job Analysis Workflow
-
-```
-Stored Resume
-        │
-        ▼
-Job Description
-        │
-        ▼
-Google Gemini AI
-        │
-        ▼
-──────────────────────────
-Match Score
-Matching Skills
-Missing Skills
-Strengths
-Recommendations
-──────────────────────────
-        │
-        ▼
-Store Analysis in PostgreSQL
-```
-
----
-
-# 🗄 Database Design
-
-### Tables
-
-- documents
-- skills
-- education
-- experience
-- projects
-- certifications
-- languages
-- job_analysis
-
----
-
-# 📸 API Endpoints
-
-### Resume Upload
-
-```
-POST /upload
-```
-
-Uploads a resume and performs:
-
+### ✅ Phase 1
+- Resume Upload
 - OCR
-- Resume Parsing
-- Resume Scoring
-- AI Resume Summary
-
----
-
-### Job Analysis
-
-```
-POST /job-analysis
-```
-
-Compares a stored resume against a Job Description using Google Gemini AI.
-
----
-
-# 🎯 Current Project Status
-
-## ✅ Phase 1
-
-- OCR Integration
 - Resume Parsing
 - PostgreSQL Integration
 
----
-
-## ✅ Phase 2
-
-- Document Classification
-- Resume Score
+### ✅ Phase 2
 - AI Resume Summary
+- Resume Score
+- Document Classification
 - Job Description Matching
-- Missing Skills Analysis
 - AI Recommendations
 
+### ✅ Phase 3 (Current)
+- Universal Document Reader
+- PNG Support
+- JPG/JPEG Support
+- PDF Support
+- DOCX Support
+
 ---
 
-## 🚀 Upcoming Features (Phase 3)
+## 🚀 Upcoming Features
 
-- PDF Resume Upload
-- DOCX Resume Upload
-- Scanned PDF OCR
-- Batch Resume Processing
+- Smart OCR for Scanned PDFs
 - Recruiter Dashboard
-- Resume Ranking
-- Candidate Search
-
----
-
-## ☁ Phase 4
-
+- Resume Search & Filtering
+- Batch Resume Upload
 - Docker
-- Docker Compose
 - Jenkins
 - GitHub Actions
 - Terraform
@@ -319,19 +180,11 @@ Compares a stored resume against a Job Description using Google Gemini AI.
 
 ---
 
-
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Ajith Chandran G**
 
-MCA Graduate
+Python Backend Developer | AI Enthusiast | Open to Opportunities
 
-Python Backend Developer
-
-Open to opportunities in Backend Development, AI, and DevOps.
-
----
-
-# ⭐ If you like this project
-
-Please consider giving it a ⭐ on GitHub.
+GitHub:
+https://github.com/AJITH19233/AI-HR-Document-Extractor
