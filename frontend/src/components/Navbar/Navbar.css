@@ -1,0 +1,37 @@
+.navbar{
+
+    background:rgba(255,255,255,.75)!important;
+
+    backdrop-filter:blur(20px);
+
+    border-bottom:1px solid rgba(0,0,0,.05);
+
+}
+
+.search-box{
+
+    width:340px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+    height:45px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0 15px;
+
+    margin-right:20px;
+
+    border-radius:14px!important;
+
+    box-shadow:none!important;
+
+    background:#F8FAFC!important;
+
+}
+
+.search-box:hover{
+
+    background:#F1F5F9!important;
+
+}
